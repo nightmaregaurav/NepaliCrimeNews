@@ -40,13 +40,13 @@ if __name__ == "__main__":
     selector1 = ".row.mt-2 > div > div"
     selector2 = ".row.mt-5 > .col-lg-6.order-2.order-lg-1 > div"
 
-    data_selector1 = extract_data(selector1)
-    data_selector2 = extract_data(selector2)
+    latest_news = extract_data(selector1)
+    other_news = extract_data(selector2)
 
-    all_data = data_selector1 + data_selector2
+    all_news = latest_news + other_news
 
     current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"nepalpolice_gov_np_latest-news_{current_datetime}.json"
 
     with open(filename, "w", encoding="utf-8") as json_file:
-        json.dump(all_data, json_file, ensure_ascii=False, indent=4)
+        json.dump(all_news, json_file, ensure_ascii=False, indent=4)
