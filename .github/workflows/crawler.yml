@@ -30,7 +30,10 @@ jobs:
         run: ./extract_nepali_crime_news.py
 
       - name: Commit the change
-        run: git add --all && git commit -m "Crawled on $(date)"
+        run: git config --global user.email "runner@github.com"
+        run: git config --global user.name "Github Action Runner"
+        run: git add --all
+        run: git commit -m "Crawled on $(date)"
 
       - name: Push new file
         run: git push
