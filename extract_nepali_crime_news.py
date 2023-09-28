@@ -10,7 +10,7 @@ import time
 def retry_request_with_backoff(resource_url, max_retries=100, retry_delay=1):
     for attempt in range(1, max_retries + 1):
         try:
-            url_response = requests.get(resource_url, timeout=10)
+            url_response = requests.get(resource_url, timeout=120)
             url_response.raise_for_status()
             return url_response
         except requests.exceptions.RequestException as e:
