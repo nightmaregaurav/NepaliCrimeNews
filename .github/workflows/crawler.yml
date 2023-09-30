@@ -1,9 +1,9 @@
 # This workflow crawls Nepal police website for news once a day and writes the news content as json.
-name: Crawl nepal police website for news every day exactly at 11 AM (With assuming govt office open at 10, so they upload news till 11)
+name: Crawl nepal police website for news every day exactly at 11 AM Nepal Time (5:15 AM UTC) (With assuming govt office open at 10, so they upload news till 11)
 
 on:
   schedule:
-  - cron: '0 11 * * *'
+  - cron: '15 5 * * *'
 #  push:
 #    branches: [ "main" ]
 
