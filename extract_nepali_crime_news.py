@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 import json
 from datetime import datetime
 import time
+import hashlib
 
 
 def retry_request_with_backoff(resource_url, max_retries=100, retry_delay=1):
@@ -59,14 +60,23 @@ selector2 = ".row.mt-5 > .col-lg-6.order-2.order-lg-1 > div"
 
 latest_news = extract_data(selector1)
 other_news = extract_data(selector2)
-
 all_news = latest_news + other_news
+for news in all_news:
+    news_hash = hashlib.sha256(json.dumps(news, sort_keys=True).encode()).hexdigest()
+    news["signature"] = news_hash
+
+try:
+    with open("nepalpolice_gov_np-news.json", "r", encoding="utf-8") as json_file:
+        existing_data = json.load(json_file)
+except FileNotFoundError:
+    existing_data = []
+
+with open("nepalpolice_gov_np-news.json", "w", encoding="utf-8") as json_file:
+    json.dump(all_news, json_file, ensure_ascii=False, indent=4)
 
 current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 filename = f"nepalpolice_gov_np_latest-news_{current_datetime}.json"
 
+new_news = [news for news in all_news if news["signature"] not in [existing_news["signature"] for existing_news in existing_data]]
 with open(filename, "w", encoding="utf-8") as json_file:
-    json.dump(all_news, json_file, ensure_ascii=False, indent=4)
-
-with open("nepalpolice_gov_np_latest-news.json", "w", encoding="utf-8") as latest_json_file:
-    json.dump(all_news, latest_json_file, ensure_ascii=False, indent=4)
+    json.dump(new_news, json_file, ensure_ascii=False, indent=4)
