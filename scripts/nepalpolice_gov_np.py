@@ -8,6 +8,9 @@ import time
 import hashlib
 
 
+NEWS_PATH = "./news/nepalpolice.gov.np/"
+ALL_NEWS_FILE = NEWS_PATH + "all.json"
+
 def retry_request_with_backoff(resource_url, max_retries=100, retry_delay=1):
     for attempt in range(1, max_retries + 1):
         try:
@@ -66,16 +69,16 @@ for news in all_news:
     news["signature"] = news_hash
 
 try:
-    with open("nepalpolice_gov_np-news.json", "r", encoding="utf-8") as json_file:
+    with open(ALL_NEWS_FILE, "r", encoding="utf-8") as json_file:
         existing_data = json.load(json_file)
 except FileNotFoundError:
     existing_data = []
 
-with open("nepalpolice_gov_np-news.json", "w", encoding="utf-8") as json_file:
+with open(ALL_NEWS_FILE, "w", encoding="utf-8") as json_file:
     json.dump(all_news, json_file, ensure_ascii=False, indent=4)
 
 current_datetime = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-filename = f"nepalpolice_gov_np_latest-news_{current_datetime}.json"
+filename = f"{NEWS_PATH}{current_datetime}.json"
 
 new_news = [news for news in all_news if news["signature"] not in [existing_news["signature"] for existing_news in existing_data]]
 with open(filename, "w", encoding="utf-8") as json_file:
