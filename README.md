@@ -1,4 +1,4 @@
-# NepalPoliceNews-crawler
+# NepaliCrimeNews
 Crawls Nepal police website for news and save in JSON format.
 Crawling is discontinued, Please take permission from Nepal Police before using this tool on a regular basis.
 
@@ -18,7 +18,7 @@ Crawling is discontinued, Please take permission from Nepal Police before using 
 
 
 ## License
-NepalPoliceNews-crawler is released under the MIT License. You can find the full license details in the [LICENSE](LICENSE) file.
+NepaliCrimeNews is released under the MIT License. You can find the full license details in the [LICENSE](LICENSE) file.
 
 Made with ❤️ by [NightmareGaurav](https://github.com/nightmaregaurav).
 
