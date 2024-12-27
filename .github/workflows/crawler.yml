@@ -1,17 +1,18 @@
-# This workflow crawls Nepal police website for news once a day and writes the news content as json.
-name: Crawl nepal police website for news every day exactly at 11 AM Nepal Time (5:15 AM UTC) (With assuming govt office open at 10, so they upload news till 11)
+# This workflow runs the crawler once a day.
+name: Runs the crawler every day exactly at 11 AM Nepal Time (5:15 AM UTC) (Assuming offices open by 10 AM, so they upload news till 11 AM)
 
 on:
-  # schedule:
-  # - cron: '15 5 * * *'
- push:
-   branches: [ "main" ]
+ schedule:
+   - cron: '15 5 * * *'
+ # push:
+   # branches: [ "main" ]
 
 permissions:
   contents: write
 
 jobs:
   crawl:
+    name: Crawl Nepal police website (nepalpolice.gov.np) for news
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,7 +30,7 @@ jobs:
       - name: Prepare git config
         run: git config --global user.email "nightmaregaurav@users.noreply.github.com" && git config --global user.name "Gaurav Nyaupane"
 
-      - name: Add dummy file to trigger update
+      - name: Add dummy file to trigger an update
         run: date > last_crawled_on.date
 
       - name: Commit the change
