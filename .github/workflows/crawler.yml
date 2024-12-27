@@ -30,10 +30,10 @@ jobs:
       - name: Crawl nepalpolice.gov.np and extract news
         run: ./scripts/nepalpolice_gov_np.py
 
-      - name: Update last crawled date info
+      - name: Update last crawled date info for nepalpolice.gov.np
         run: date > ./news/nepalpolice.gov.np/last_crawled_on.date
 
-      - name: Commit the News from nepalpolice.gov.np
+      - name: Commit the news from nepalpolice.gov.np
         run: git add --all && git commit -m "Crawled nepalpolice.gov.np on $(date)"
 
       - name: Push all changes
