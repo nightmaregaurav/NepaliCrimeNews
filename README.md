@@ -1,6 +1,5 @@
 # NepaliCrimeNews
 Crawls Nepal police website for news and save in JSON format.
-Crawling is discontinued, Please take permission from Nepal Police before using this tool on a regular basis.
 
 ```json
 [
