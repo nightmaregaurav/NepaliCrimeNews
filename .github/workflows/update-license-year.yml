@@ -5,6 +5,9 @@ on:
     - cron: '0 0 1 1 *' # Runs at 00:00 UTC on Jan 1 every year
   workflow_dispatch: # Allow manual trigger as well
 
+permissions:
+  contents: write
+
 jobs:
   update-license:
     runs-on: ubuntu-latest
@@ -16,6 +19,9 @@ jobs:
       - name: Get current year
         id: year
         run: echo "year=$(date +'%Y')" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare git config
+        run: git config user.email "nightmaregaurav@users.noreply.github.com" && git config user.name "Gaurav Nyaupane"
 
       - name: Update LICENSE year (case-insensitive)
         run: |
@@ -51,9 +57,6 @@ jobs:
 
       - name: Commit and push if changed
         run: |
-          git config user.name "Gaurav Nyaupane"
-          git config user.email "nightmaregaurav@users.noreply.github.com"
-
           if git diff --quiet; then
             echo "No changes to commit."
           else
