@@ -1,5 +1,5 @@
-# This workflow runs the crawler once a day.
-name: Runs the crawler every day exactly at 11 AM Nepal Time (5:15 AM UTC) (Assuming offices open by 10 AM, so they upload news till 11 AM)
+# This workflow runs the crawler once a day exactly at 11 AM Nepal Time (5:15 AM UTC) (Assuming offices open by 10 AM, so they upload news till 11 AM)
+name: News crawler
 
 on:
  schedule:
