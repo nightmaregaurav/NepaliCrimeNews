@@ -22,45 +22,58 @@ jobs:
 
       - name: Prepare git config
         run: git config user.email "nightmaregaurav@users.noreply.github.com" && git config user.name "Gaurav Nyaupane"
+        
+      - name: Backup LICENSE file to compare it later
+        run: cp LICENSE LICENSE.bak
 
-      - name: Update LICENSE year (case-insensitive)
+      - name: Update year in LICENSE
         run: |
-          CURRENT_YEAR=${{ steps.year.outputs.year }}
-          FILE="LICENSE"
+          CURRENT_YEAR="${{ steps.year.outputs.year }}"
 
-          if [[ -f "$FILE" ]]; then
-            echo "Found LICENSE file. Updating years..."
+          awk -v year="$CURRENT_YEAR" '
+            BEGIN { IGNORECASE = 1 }
 
-            cp "$FILE" "$FILE.bak"
-
-            # Make substitutions case-insensitively by using awk
-            awk -v year="$CURRENT_YEAR" '
-              BEGIN { IGNORECASE = 1 }
-              {
-                # Handle single year (e.g., Copyright (c) 2023)
-                gsub(/(Copyright \(c\) [0-9]{4})([^–0-9]|$)/, "\\1–" year "\\2")
-
-                # Handle range (e.g., Copyright (c) 2020–2024)
-                gsub(/(Copyright \(c\) [0-9]{4}–)[0-9]{4}/, "\\1" year)
-                print
+            function update_year(line, pattern) {
+              if (match(line, pattern, m)) {
+                prefix = m[1]
+                old = substr(line, RSTART + length(prefix), RLENGTH - length(prefix))
+                if (match(old, /^[0-9]{4}$/)) {
+                  return substr(line, 1, RSTART - 1) prefix old "–" year substr(line, RSTART + RLENGTH)
+                } else if (match(old, /^[0-9]{4}–[0-9]{4}$/)) {
+                  split(old, years, "–")
+                  return substr(line, 1, RSTART - 1) prefix years[1] "–" year substr(line, RSTART + RLENGTH)
+                }
               }
-            ' "$FILE.bak" > "$FILE"
+              return line
+            }
 
-            if ! diff -q "$FILE.bak" "$FILE" > /dev/null; then
-              echo "LICENSE file changed."
-            else
-              echo "No changes made to LICENSE."
-            fi
-          else
-            echo "LICENSE file not found. Skipping."
-          fi
+            {
+              line = $0
+              patterns[0] = "(copyright \\(c\\)[[:space:]]*)[0-9]{4}(–[0-9]{4})?"
+              patterns[1] = "(copyright[[:space:]]+)[0-9]{4}(–[0-9]{4})?"
+              patterns[2] = "(©[[:space:]]*)[0-9]{4}(–[0-9]{4})?"
+              patterns[3] = "(copr\\.[[:space:]]*)[0-9]{4}(–[0-9]{4})?"
 
-      - name: Commit and push if changed
+              for (i in patterns) {
+                line = update_year(line, patterns[i])
+              }
+
+              print line
+            }
+          ' LICENSE.bak > LICENSE
+
+      - name: Check if LICENSE changed
+        id: diff
         run: |
-          if git diff --quiet; then
-            echo "No changes to commit."
+          if diff -q LICENSE LICENSE.bak > /dev/null; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git add LICENSE
-            git commit -m "chore: update license year to ${{ steps.year.outputs.year }}"
-            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Commit updated LICENSE
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git add LICENSE
+          git commit -m "chore: update LICENSE year to ${{ steps.year.outputs.year }}"
+          git push
