@@ -1,9 +1,9 @@
-# This workflow runs the crawler once a day exactly at 11 AM Nepal Time (5:15 AM UTC) (Assuming offices open by 10 AM, so they upload news till 11 AM)
 name: News crawler
 
 on:
  schedule:
-   - cron: '15 5 * * *'
+   - cron: '15 5 * * *' # once a day, exactly at 11 AM Nepal Time (5:15 AM UTC) (Assuming offices open by 10 AM, so they upload news till 11 AM)
+ workflow_dispatch: # Allow manual trigger as well
  # push:
    # branches: [ "main" ]
 
