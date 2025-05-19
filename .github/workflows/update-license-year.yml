@@ -1,0 +1,63 @@
+name: Update License Year
+
+on:
+  schedule:
+    - cron: '0 0 1 1 *' # Runs at 00:00 UTC on Jan 1 every year
+  workflow_dispatch: # Allow manual trigger as well
+
+jobs:
+  update-license:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get current year
+        id: year
+        run: echo "year=$(date +'%Y')" >> "$GITHUB_OUTPUT"
+
+      - name: Update LICENSE year (case-insensitive)
+        run: |
+          CURRENT_YEAR=${{ steps.year.outputs.year }}
+          FILE="LICENSE"
+
+          if [[ -f "$FILE" ]]; then
+            echo "Found LICENSE file. Updating years..."
+
+            cp "$FILE" "$FILE.bak"
+
+            # Make substitutions case-insensitively by using awk
+            awk -v year="$CURRENT_YEAR" '
+              BEGIN { IGNORECASE = 1 }
+              {
+                # Handle single year (e.g., Copyright (c) 2023)
+                gsub(/(Copyright \(c\) [0-9]{4})([^–0-9]|$)/, "\\1–" year "\\2")
+
+                # Handle range (e.g., Copyright (c) 2020–2024)
+                gsub(/(Copyright \(c\) [0-9]{4}–)[0-9]{4}/, "\\1" year)
+                print
+              }
+            ' "$FILE.bak" > "$FILE"
+
+            if ! diff -q "$FILE.bak" "$FILE" > /dev/null; then
+              echo "LICENSE file changed."
+            else
+              echo "No changes made to LICENSE."
+            fi
+          else
+            echo "LICENSE file not found. Skipping."
+          fi
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "License Keeper"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No changes to commit."
+          else
+            git add LICENSE
+            git commit -m "chore: update license year to ${{ steps.year.outputs.year }}"
+            git push
+          fi
