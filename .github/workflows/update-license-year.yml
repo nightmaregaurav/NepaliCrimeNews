@@ -22,45 +22,16 @@ jobs:
 
       - name: Prepare git config
         run: git config user.email "nightmaregaurav@users.noreply.github.com" && git config user.name "Gaurav Nyaupane"
-        
+
       - name: Backup LICENSE file to compare it later
         run: cp LICENSE LICENSE.bak
 
       - name: Update year in LICENSE
         run: |
           CURRENT_YEAR="${{ steps.year.outputs.year }}"
-
-          awk -v year="$CURRENT_YEAR" '
-            BEGIN { IGNORECASE = 1 }
-
-            function update_year(line, pattern) {
-              if (match(line, pattern, m)) {
-                prefix = m[1]
-                old = substr(line, RSTART + length(prefix), RLENGTH - length(prefix))
-                if (match(old, /^[0-9]{4}$/)) {
-                  return substr(line, 1, RSTART - 1) prefix old "–" year substr(line, RSTART + RLENGTH)
-                } else if (match(old, /^[0-9]{4}–[0-9]{4}$/)) {
-                  split(old, years, "–")
-                  return substr(line, 1, RSTART - 1) prefix years[1] "–" year substr(line, RSTART + RLENGTH)
-                }
-              }
-              return line
-            }
-
-            {
-              line = $0
-              patterns[0] = "(copyright \\(c\\)[[:space:]]*)[0-9]{4}(–[0-9]{4})?"
-              patterns[1] = "(copyright[[:space:]]+)[0-9]{4}(–[0-9]{4})?"
-              patterns[2] = "(©[[:space:]]*)[0-9]{4}(–[0-9]{4})?"
-              patterns[3] = "(copr\\.[[:space:]]*)[0-9]{4}(–[0-9]{4})?"
-
-              for (i in patterns) {
-                line = update_year(line, patterns[i])
-              }
-
-              print line
-            }
-          ' LICENSE.bak > LICENSE
+          sed -i.bak -E \
+            -e "s/(Copyright \(C\)|Copyright|©|Copr\.|copr\.|copyright)[[:space:]]+([0-9]{4})(–[0-9]{4})?/\1 \2–${CURRENT_YEAR}/I" \
+            LICENSE
 
       - name: Check if LICENSE changed
         id: diff
